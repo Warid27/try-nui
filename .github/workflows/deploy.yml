@@ -5,31 +5,11 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      deploy_via_ssh:
-        description: 'Deploy via SSH to cPanel'
+      deploy_via_ftp:
+        description: 'Deploy via FTP to cPanel'
         required: false
         type: boolean
         default: false
-      ssh_host:
-        description: 'SSH host'
-        required: false
-        type: string
-        default: '101.50.1.72'
-      ssh_port:
-        description: 'SSH port'
-        required: false
-        type: string
-        default: '2250'
-      ssh_user:
-        description: 'SSH username'
-        required: false
-        type: string
-        default: 'alwaridw'
-      ssh_path:
-        description: 'Remote path'
-        required: false
-        type: string
-        default: '/home/alwaridw/try-nui.al-warid.web.id'
 
 permissions:
   contents: write
@@ -63,24 +43,24 @@ jobs:
           force_orphan: true
           commit_message: 'deploy: build from ${{ github.sha }}'
 
-  deploy-ssh:
-    name: Deploy via SSH
+  deploy-ftp:
+    name: Deploy via FTP
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ github.event.inputs.deploy_via_ssh == 'true' }}
+    if: ${{ github.event.inputs.deploy_via_ftp == 'true' }}
     steps:
       - name: Checkout build branch
         uses: actions/checkout@v4
         with:
           ref: build
 
-      - name: Deploy via rsync
-        uses: burnett01/rsync-deployments@7.0.1
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.0.0
         with:
-          switches: -avz --delete
-          path: ./
-          remote_path: ${{ github.event.inputs.ssh_path }}
-          remote_host: ${{ github.event.inputs.ssh_host }}
-          remote_port: ${{ github.event.inputs.ssh_port }}
-          remote_user: ${{ github.event.inputs.ssh_user }}
-          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /try-nui.al-warid.web.id/
+          state: .ftp-deploy-sync-state.json
+          delete: true
+          exclude: .git*
