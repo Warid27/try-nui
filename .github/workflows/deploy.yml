@@ -55,12 +55,13 @@ jobs:
           ref: build
 
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.0.0
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /try-nui.al-warid.web.id/
+          local-dir: ./dist/
+          server-dir: ../../try-nui.al-warid.web.id/
           state: .ftp-deploy-sync-state.json
-          delete: true
+          dangerous-clean-slave: true
           exclude: .git*
