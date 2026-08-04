@@ -358,31 +358,6 @@ function onPinchDetected() {
   }
 }
 
-// === HAND CENTER MAPPING ===
-function updateAttractPoint(landmarks) {
-  if (!landmarks || landmarks.length === 0) {
-    state.hasHand = false;
-    return;
-  }
-
-  state.hasHand = true;
-  const hand = landmarks[0];
-
-  // Use wrist landmark (index 0) for center
-  const wristX = hand[0].x;
-  const wristY = hand[0].y;
-
-  // Mirror X (webcam is mirrored) and map to Three.js world coordinates (-5 to 5)
-  const worldX = (1.0 - wristX) * 10 - 5; // Mirror and map 0..1 → 5..-5 → -5..5
-  const worldY = -(wristY * 10 - 5); // Flip Y (screen Y is inverted) and map
-
-  state.handPosition.x = wristX;
-  state.handPosition.y = wristY;
-  state.targetPosition.x = worldX;
-  state.targetPosition.y = worldY;
-  state.attractPoint.set(worldX, worldY, 0);
-}
-
 // === DEBUG CANVAS OVERLAY ===
 function drawDebugOverlay(landmarks) {
   if (!debugCanvas || !debugCtx) return;
@@ -542,8 +517,23 @@ function recognizeFrame() {
     const landmarks = result.landmarks;
     const gestures = result.gestures;
     const handedness = result.handedness;
+    const handCount = landmarks ? landmarks.length : 0;
 
-    // Extract gesture info for first detected hand
+    if (handCount === 0) {
+      state.currentGesture = 'None';
+      state.currentConfidence = 0;
+      state.currentHandedness = '--';
+      state.hasHand = false;
+      state.handPosition.x = 0;
+      state.handPosition.y = 0;
+      state.targetPosition.x = 0;
+      state.targetPosition.y = 0;
+      state.attractPoint.set(0, 0, 0);
+      drawDebugOverlay([]);
+      return;
+    }
+
+    // Use first hand for gesture detection
     if (gestures && gestures.length > 0 && gestures[0].length > 0) {
       const topGesture = gestures[0][0];
       state.currentGesture = topGesture.categoryName;
@@ -553,25 +543,48 @@ function recognizeFrame() {
       state.currentConfidence = 0;
     }
 
-    // Handedness
-    if (handedness && handedness.length > 0 && handedness[0].length > 0) {
-      state.currentHandedness = handedness[0][0].categoryName;
-    } else {
-      state.currentHandedness = '--';
+    // Handedness — show all detected hands
+    const hands = [];
+    if (handedness) {
+      for (let i = 0; i < handedness.length; i++) {
+        if (handedness[i] && handedness[i].length > 0) {
+          hands.push(handedness[i][0].categoryName);
+        }
+      }
     }
+    state.currentHandedness = hands.length > 0 ? hands.join(', ') : '--';
 
-    // Update attract point from hand position
-    updateAttractPoint(landmarks);
-
-    // Check for pinch gesture
-    if (isPinching(landmarks)) {
-      onPinchDetected();
+    // Average hand position from all hands
+    let avgX = 0, avgY = 0;
+    for (let i = 0; i < handCount; i++) {
+      avgX += landmarks[i][0].x;
+      avgY += landmarks[i][0].y;
     }
+    avgX /= handCount;
+    avgY /= handCount;
 
-    // Draw debug overlay
+    state.hasHand = true;
+    state.handPosition.x = avgX;
+    state.handPosition.y = avgY;
+
+    const worldX = (1.0 - avgX) * 10 - 5;
+    const worldY = -(avgY * 10 - 5);
+    state.targetPosition.x = worldX;
+    state.targetPosition.y = worldY;
+    state.attractPoint.set(worldX, worldY, 0);
+
+    // Check pinch on any hand
+    let pinching = false;
+    for (let i = 0; i < handCount; i++) {
+      if (isPinching([landmarks[i]])) {
+        pinching = true;
+        break;
+      }
+    }
+    if (pinching) onPinchDetected();
+
     drawDebugOverlay(landmarks);
   } catch (err) {
-    // Silently handle frame-level errors to avoid crashing the loop
     console.warn('[NUI] Frame recognition error:', err.message);
   }
 }
