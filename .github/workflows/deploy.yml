@@ -24,7 +24,7 @@ on:
         description: 'Remote path'
         required: false
         type: string
-        default: '/home/alwaridw/public_html/try-nui'
+        default: '/home/alwaridw/try-nui.al-warid.web.id'
 
 permissions:
   contents: write
