@@ -138,7 +138,7 @@ async function initGestureRecognizer() {
         delegate: 'GPU',
       },
       runningMode: 'VIDEO',
-      numHands: 1,
+      numHands: 2,
     });
     console.log('[NUI] GestureRecognizer created successfully');
     return recognizer;
@@ -259,8 +259,6 @@ function updateParticles() {
     effect = 'pinch';
   } else if (state.currentGesture === 'Open_Palm' && state.hasHand) {
     effect = 'attract';
-  } else if (state.currentGesture === 'Closed_Fist' && state.hasHand) {
-    effect = 'repel';
   } else if (state.currentGesture === 'Pointing_Up' && state.hasHand) {
     effect = 'rise';
   }
@@ -458,8 +456,6 @@ function updateDebugPanel() {
     gestureDisplay = 'Pinch';
   } else if (state.currentGesture === 'Open_Palm') {
     gestureDisplay = 'Open Palm';
-  } else if (state.currentGesture === 'Closed_Fist') {
-    gestureDisplay = 'Closed Fist';
   } else if (state.currentGesture === 'Thumb_Up') {
     gestureDisplay = 'Thumb Up';
   } else if (state.currentGesture === 'Thumb_Down') {
