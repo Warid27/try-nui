@@ -6,22 +6,25 @@ on:
   workflow_dispatch:
     inputs:
       deploy_via_ssh:
-        description: 'Deploy via SSH after build'
+        description: 'Deploy via SSH to cPanel'
         required: false
         type: boolean
         default: false
       ssh_host:
-        description: 'SSH host (e.g. example.com)'
+        description: 'SSH host'
         required: false
         type: string
+        default: '101.50.1.72'
       ssh_user:
         description: 'SSH username'
         required: false
         type: string
+        default: 'alwaridw'
       ssh_path:
-        description: 'Remote path (e.g. /home/user/public_html)'
+        description: 'Remote path'
         required: false
         type: string
+        default: '/home/alwaridw/public_html'
 
 permissions:
   contents: write
@@ -61,24 +64,16 @@ jobs:
     needs: build
     if: ${{ github.event.inputs.deploy_via_ssh == 'true' }}
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-          path: ./dist
-        continue-on-error: true
-
       - name: Checkout build branch
         uses: actions/checkout@v4
         with:
           ref: build
-          path: ./dist
 
-      - name: Deploy via rsync over SSH
+      - name: Deploy via rsync
         uses: burnett01/rsync-deployments@7.0.1
         with:
           switches: -avz --delete
-          path: ./dist/
+          path: ./
           remote_path: ${{ github.event.inputs.ssh_path }}
           remote_host: ${{ github.event.inputs.ssh_host }}
           remote_user: ${{ github.event.inputs.ssh_user }}
