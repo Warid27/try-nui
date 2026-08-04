@@ -369,44 +369,44 @@ function drawDebugOverlay(landmarks) {
 
   if (!landmarks || landmarks.length === 0) return;
 
-  const hand = landmarks[0];
-  if (!hand) return;
-
-  // Draw connections
   const connections = GestureRecognizer.HAND_CONNECTIONS;
-  debugCtx.strokeStyle = '#00ffff';
-  debugCtx.lineWidth = 2;
-  debugCtx.shadowColor = '#00ffff';
-  debugCtx.shadowBlur = 6;
 
-  for (const conn of connections) {
-    const start = hand[conn.start];
-    const end = hand[conn.end];
-    if (!start || !end) continue;
+  for (let handIdx = 0; handIdx < landmarks.length; handIdx++) {
+    const hand = landmarks[handIdx];
+    if (!hand) continue;
 
-    debugCtx.beginPath();
-    debugCtx.moveTo(start.x * w, start.y * h);
-    debugCtx.lineTo(end.x * w, end.y * h);
-    debugCtx.stroke();
+    const isLeft = handIdx % 2 === 0;
+    debugCtx.strokeStyle = isLeft ? '#00ffff' : '#ff00ff';
+    debugCtx.fillStyle = isLeft ? '#ff00ff' : '#00ffff';
+    debugCtx.shadowColor = debugCtx.strokeStyle;
+    debugCtx.shadowBlur = 6;
+
+    for (const conn of connections) {
+      const start = hand[conn.start];
+      const end = hand[conn.end];
+      if (!start || !end) continue;
+
+      debugCtx.beginPath();
+      debugCtx.moveTo(start.x * w, start.y * h);
+      debugCtx.lineTo(end.x * w, end.y * h);
+      debugCtx.stroke();
+    }
+
+    debugCtx.shadowColor = debugCtx.fillStyle;
+    debugCtx.shadowBlur = 8;
+
+    for (let i = 0; i < hand.length; i++) {
+      const lm = hand[i];
+      const cx = lm.x * w;
+      const cy = lm.y * h;
+      const radius = i === 4 || i === 8 ? 5 : 3;
+
+      debugCtx.beginPath();
+      debugCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+      debugCtx.fill();
+    }
   }
 
-  // Draw landmarks
-  debugCtx.fillStyle = '#ff00ff';
-  debugCtx.shadowColor = '#ff00ff';
-  debugCtx.shadowBlur = 8;
-
-  for (let i = 0; i < hand.length; i++) {
-    const lm = hand[i];
-    const cx = lm.x * w;
-    const cy = lm.y * h;
-    const radius = i === 4 || i === 8 ? 5 : 3; // Bigger dots for thumb/index tips
-
-    debugCtx.beginPath();
-    debugCtx.arc(cx, cy, radius, 0, Math.PI * 2);
-    debugCtx.fill();
-  }
-
-  // Reset shadow
   debugCtx.shadowBlur = 0;
 }
 

@@ -70,7 +70,7 @@ body {
   border-radius: 4px;
   box-shadow: var(--glow-cyan);
   opacity: 0.85;
-  filter: blur(0.3px) saturate(1.2);
+  filter: blur(2px) saturate(1.2);
   transition: opacity 0.3s, transform 0.3s, filter 0.3s;
 }
 
