@@ -97,6 +97,9 @@ function hideLoading() {
 
 // === WEBCAM SETUP ===
 async function initWebcam() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    throw new Error('Camera requires HTTPS. Your browser blocked access on insecure context.');
+  }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: 'user', width: 640, height: 480 },
