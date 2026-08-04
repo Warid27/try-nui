@@ -1,0 +1,85 @@
+name: Build & Deploy to cPanel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_via_ssh:
+        description: 'Deploy via SSH after build'
+        required: false
+        type: boolean
+        default: false
+      ssh_host:
+        description: 'SSH host (e.g. example.com)'
+        required: false
+        type: string
+      ssh_user:
+        description: 'SSH username'
+        required: false
+        type: string
+      ssh_path:
+        description: 'Remote path (e.g. /home/user/public_html)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & Push to build branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to build branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: build
+          force_orphan: true
+          commit_message: 'deploy: build from ${{ github.sha }}'
+
+  deploy-ssh:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.event.inputs.deploy_via_ssh == 'true' }}
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./dist
+        continue-on-error: true
+
+      - name: Checkout build branch
+        uses: actions/checkout@v4
+        with:
+          ref: build
+          path: ./dist
+
+      - name: Deploy via rsync over SSH
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avz --delete
+          path: ./dist/
+          remote_path: ${{ github.event.inputs.ssh_path }}
+          remote_host: ${{ github.event.inputs.ssh_host }}
+          remote_user: ${{ github.event.inputs.ssh_user }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
