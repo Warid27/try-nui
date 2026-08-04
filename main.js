@@ -261,6 +261,8 @@ function updateParticles() {
     effect = 'attract';
   } else if (state.currentGesture === 'Closed_Fist' && state.hasHand) {
     effect = 'repel';
+  } else if (state.currentGesture === 'Pointing_Up' && state.hasHand) {
+    effect = 'rise';
   }
 
   // Scale animation
@@ -268,6 +270,8 @@ function updateParticles() {
     state.targetScale = THREE.MathUtils.lerp(state.targetScale, 1.3, 0.02);
   } else if (effect === 'repel') {
     state.targetScale = THREE.MathUtils.lerp(state.targetScale, 0.6, 0.02);
+  } else if (effect === 'rise') {
+    state.targetScale = THREE.MathUtils.lerp(state.targetScale, 1.15, 0.02);
   } else if (effect === 'pinch') {
     state.targetScale = THREE.MathUtils.lerp(state.targetScale, 1.0, 0.03);
   } else {
@@ -316,6 +320,11 @@ function updateParticles() {
       tx = ox * contraction + dx * repelStrength * 0.2;
       ty = oy * contraction + dy * repelStrength * 0.2;
       tz = oz * contraction;
+    } else if (effect === 'rise') {
+      // Particles drift upward
+      tx = ox;
+      ty = oy + 2.0;
+      tz = oz;
     } else {
       // Idle: drift back to original
       tx = ox;
