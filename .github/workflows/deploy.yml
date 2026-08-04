@@ -15,6 +15,11 @@ on:
         required: false
         type: string
         default: '101.50.1.72'
+      ssh_port:
+        description: 'SSH port'
+        required: false
+        type: string
+        default: '2250'
       ssh_user:
         description: 'SSH username'
         required: false
@@ -76,5 +81,6 @@ jobs:
           path: ./
           remote_path: ${{ github.event.inputs.ssh_path }}
           remote_host: ${{ github.event.inputs.ssh_host }}
+          remote_port: ${{ github.event.inputs.ssh_port }}
           remote_user: ${{ github.event.inputs.ssh_user }}
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
