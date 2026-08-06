@@ -235,6 +235,46 @@ body {
   flex-shrink: 0;
 }
 
+/* ---- GitHub Link (top-left) ---- */
+
+.github-link {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--neon-cyan);
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: var(--neon-cyan);
+  text-decoration: none;
+  font-family: Orbitron, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--glow-cyan);
+  transition: all 0.2s;
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+.github-link:hover {
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.github-link svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 /* ---- Loading Overlay ---- */
 
 #loading {
@@ -376,5 +416,20 @@ body {
     height: 105px;
     bottom: 8px;
     right: 8px;
+  }
+
+  .github-link {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+  }
+
+  .github-link svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .github-link span {
+    display: none;
   }
 }

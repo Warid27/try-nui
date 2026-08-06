@@ -1,6 +1,10 @@
 # NUI Hand Tracking
 
+[![GitHub](https://img.shields.io/badge/GitHub-Warid27%2Ftry--nui-181717?logo=github)](https://github.com/Warid27/try-nui)
+
 Real-time hand tracking Natural User Interface using MediaPipe Tasks Vision and Three.js. Control a cyberpunk particle system with hand gestures through your webcam.
+
+**Live Demo:** [try-nui.al-warid.web.id](https://try-nui.al-warid.web.id)
 
 ## Prerequisites
 
@@ -25,12 +29,20 @@ npm run build
 
 Output will be in `dist/` folder.
 
-## Deploy to cPanel
+## Deployment
 
-1. Run `npm run build`
-2. Upload **all contents** of the `dist/` folder to your `public_html` directory
-3. Enable HTTPS via cPanel → SSL/TLS → Let's Encrypt (free)
-4. No server-side configuration needed — it's fully static
+This project is deployed to **cPanel** via GitHub Actions CI/CD pipeline:
+
+1. Push to `main` triggers automatic build
+2. Build artifacts are pushed to a `build` branch
+3. FTP deployment uploads to the production server
+
+| Platform | URL |
+|----------|-----|
+| GitHub | [github.com/Warid27/try-nui](https://github.com/Warid27/try-nui) |
+| Production | [try-nui.al-warid.web.id](https://try-nui.al-warid.web.id) |
+
+For detailed deployment setup, manual deployment, and troubleshooting, see **[DEPLOY.md](DEPLOY.md)**.
 
 ## Gesture Controls
 
